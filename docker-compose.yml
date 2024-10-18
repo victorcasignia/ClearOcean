@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONUNBUFFERED=1
+    shm_size: '32gb'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+    command: bash /app/run.sh
