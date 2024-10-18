@@ -136,7 +136,7 @@ val:
   use_kind_align: false
   cal_all: true
   show_all: true
-  val_freq: !!float 500
+  val_freq: !!float 5000
   save_img: true
 
   metrics:
@@ -153,7 +153,7 @@ val:
 # logging settings
 logger:
   print_freq: 100
-  save_checkpoint_freq: !!float 500
+  save_checkpoint_freq: !!float 5000
   use_tb_logger: true
   wandb:
     project: ~
