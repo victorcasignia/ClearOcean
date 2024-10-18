@@ -89,4 +89,5 @@ To use this: change the contents of `ClearOcean/run.sh` to
 python3 pydiff/train.py -opt options/unet_backbone_inference.yaml
 ```
 
-Then re-run `docker compose up`.
+To cancel a run, just `ctrl+C` on the terminal running the code
+
