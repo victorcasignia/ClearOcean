@@ -1,5 +1,5 @@
 # general settings
-name: infer_pros
+name: unet_backbone_inference
 model_type: PyDiffModel
 num_gpu: 1
 manual_seed: 0
@@ -28,6 +28,7 @@ datasets:
     batch_size_per_gpu: 1
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
+    should_normalize: true
   val:
     # Please modify accordingly to use your own validation
     # Or comment the val block if do not need validation during training
@@ -41,6 +42,7 @@ datasets:
     mean: [0.23976195, 0.4732557,  0.44424778]
     std: [0.19079739, 0.20718611, 0.21206066]
     should_normalize: true
+    input_mode: crop
 
 # network structures
 network_unet:
@@ -79,7 +81,7 @@ ddpm_schedule:
 
 # path
 path:
-  pretrain_network_g: "../experiments/preloaded_uw_train_v17_lsui_uieb_with_ca_affine_pyramid_modified_shav2_normalized_hyperparam256/models/net_g_480000.pth"
+  pretrain_network_g: "../checkpoints/net_g_latest.pth"
   param_key_g: params
   strict_load_g: False
   pretrain_network_d: ~

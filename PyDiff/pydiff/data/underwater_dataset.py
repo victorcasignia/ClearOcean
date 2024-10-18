@@ -236,10 +236,20 @@ class UW_Dataset(data.Dataset):
             
         H, W, _ = input_img.shape
         assert input_img.shape[:2] == gt_img.shape[:2], f"{input_img.shape}, {gt_img.shape}"
+
+        if H < crop_size or W < crop_size:
+            # Pad images if they are smaller than crop size
+            input_img = self.pad_image(input_img, crop_size, crop_size)
+            gt_img = self.pad_image(gt_img, crop_size, crop_size)
+
+        
+            
+        H, W, _ = input_img.shape
         h = np.random.randint(0, H - crop_size + 1)
         w = np.random.randint(0, W - crop_size + 1)
         gt_img = gt_img[h: h + crop_size, w: w + crop_size, :]
         input_img = input_img[h: h + crop_size, w: w + crop_size, :]
+
 
         return input_img, gt_img
     

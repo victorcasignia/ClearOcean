@@ -31,7 +31,8 @@ datasets:
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
     input_mode: crop
-    crop_size: 128
+    crop_size: 256
+    should_pad: true
 
   val:
     # Please modify accordingly to use your own validation
@@ -49,7 +50,8 @@ datasets:
     std: [0.19079739, 0.20718611, 0.21206066]
     should_normalize: true
     input_mode: crop
-    crop_size: 128
+    crop_size: 256
+    should_pad: true
 
 # network structures
 network_unet:
@@ -74,7 +76,7 @@ network_global_corrector:
 
 network_ddpm:
   type: GaussianDiffusion
-  image_size: 128
+  image_size: 256
   channels: 3
   conditional: true
   color_limit: -1
@@ -103,7 +105,7 @@ train:
   train_type: ddpm_cs_pyramid
   t_border: 1000
   input_mode: crop
-  crop_size: [128, 128]
+  crop_size: [256, 256]
   optim_g:
     type: Adam
     lr: !!float 1e-4
