@@ -2,6 +2,29 @@ Place LSUI and UIEB Datasets in `ClearOcean/dataset`
 
 Place Unet backbone checkpoint in `ClearOcean/checkpoints`
 
+Create a CVMIG folder under `ClearOcean/dataset`. You can put images for inference in this folder.
+
+The directory structure after this should be:
+
+```
+ClearOcean
+├── BasicSR-light
+├── checkpoints
+│   ├── net_g_latest.pth
+├── dataset
+│   ├── CVMIG
+│   ├── LSUI
+│   ├── UIEB
+├── experiments
+├── PyDiff
+├── .dockerignore
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── README.md
+├── run.sh
+```
+
 Install Docker (https://docs.docker.com/desktop/install/linux/ubuntu/)
 
 ```
