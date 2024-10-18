@@ -1,4 +1,4 @@
-experiments
+# experiments
 # .gitignore
 # dataset
 # pretrained_models
@@ -249,4 +249,6 @@ little_test.py
 tb_logger/*
 
 
-dataset
+!experiments/.gitkeep 
+!dataset/.gitkeep 
+!checkpoints/.gitkeep 
