@@ -21,7 +21,7 @@ RUN apt install -y wget g++
 
 ######################
 
-RUN pip install torch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1
+RUN pip install torch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 dropbox
 
 WORKDIR /app/BasicSR-light
 RUN pip install -r /app/BasicSR-light/requirements.txt

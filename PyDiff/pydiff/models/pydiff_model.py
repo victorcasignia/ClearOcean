@@ -25,12 +25,17 @@ cv2.setNumThreads(1)
 import torchvision
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 from scripts.utils import pad_tensor_back
+from .upload_model import ModelUploader
 
 @MODEL_REGISTRY.register()
 class PyDiffModel(BaseModel):
 
     def __init__(self, opt):
         super(PyDiffModel, self).__init__(opt)
+        self.best_psnr = 0
+        self.best_ssim = 0
+
+        self.model_uploader = ModelUploader(opt['name'])
 
         # define u-net network
         self.unet = build_network(opt['network_unet'])
@@ -408,8 +413,24 @@ class PyDiffModel(BaseModel):
                 logger.info(log_str)
         
         if tb_logger:
+            cur_ssim = self.metric_results['ssim']
+            cur_psnr = self.metric_results['psnr']
+
+            if cur_ssim > self.best_ssim:
+                self.best_ssim = cur_ssim
+                        
+                self.save_network([self.ddpm], 'net_g', 'best_ssim', param_key=['params'])
+                self.model_uploader.upload_best_ssim_model()
+
+            if cur_psnr > self.best_psnr:
+                self.best_psnr = cur_psnr
+
+                self.save_network([self.ddpm], 'net_g', 'best_psnr', param_key=['params'])
+                self.model_uploader.upload_best_psnr_model()
+
             for metric, value in self.metric_results.items():
                 tb_logger.add_scalar(f'metrics/{metric}', value, current_iter)
+            self.model_uploader.upload_latest_model()
 
     def get_current_visuals(self):
         out_dict = OrderedDict()
