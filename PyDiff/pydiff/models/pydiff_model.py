@@ -35,7 +35,7 @@ class PyDiffModel(BaseModel):
         self.best_psnr = 0
         self.best_ssim = 0
 
-        self.model_uploader = ModelUploader(opt['name'])
+        self.model_uploader = ModelUploader(opt)
 
         # define u-net network
         self.unet = build_network(opt['network_unet'])

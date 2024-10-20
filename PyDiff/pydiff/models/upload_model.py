@@ -6,10 +6,11 @@ from basicsr.utils import get_root_logger
 
 class ModelUploader():
 
-    def __init__(self, experiment_name):
+    def __init__(self, opt):
         self.chunk_size=4*1024*1024
         self.access_token = os.environ.get('DROPBOX_TOKEN')
-        self.experiment_name = experiment_name
+        self.experiment_name = opt['name']
+        self.opt = opt
         self.logger = get_root_logger()
 
     def chunked_upload_to_dropbox(self, filepath, dropbox_path):

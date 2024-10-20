@@ -137,7 +137,7 @@ val:
   cal_all: true
   show_all: true
   val_freq: !!float 5000
-  save_img: true
+  save_img: false
 
   metrics:
     psnr: # metric name, can be arbitrary
