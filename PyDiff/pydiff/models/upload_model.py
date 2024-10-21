@@ -10,6 +10,7 @@ class ModelUploader():
         self.chunk_size=4*1024*1024
         self.access_token = os.environ.get('DROPBOX_TOKEN')
         self.experiment_name = opt['name']
+        self.should_upload = opt.get('should_upload', False)
         self.opt = opt
         self.logger = get_root_logger()
 
@@ -68,21 +69,24 @@ class ModelUploader():
 
             
     def upload_latest_model(self):
-        self.logger.info(f'Thread start: upload_latest_model')
-        thread = Thread(target = self._upload_latest_model)
-        thread.start()
+        if self.should_upload:
+            self.logger.info(f'Thread start: upload_latest_model')
+            thread = Thread(target = self._upload_latest_model)
+            thread.start()
 
     def upload_best_ssim_model(self):
-        self.logger.info(f'Thread start: upload_best_ssim_model')
-        thread = Thread(target = self._upload_best_ssim_model)
-        thread.start()
-        
+        if self.should_upload:
+            self.logger.info(f'Thread start: upload_best_ssim_model')
+            thread = Thread(target = self._upload_best_ssim_model)
+            thread.start()
+            
 
     def upload_best_psnr_model(self):
-        self.logger.info(f'Thread start: upload_best_psnr_model')
-        thread = Thread(target = self._upload_best_psnr_model)
-        thread.start()
-        
+        if self.should_upload:
+            self.logger.info(f'Thread start: upload_best_psnr_model')
+            thread = Thread(target = self._upload_best_psnr_model)
+            thread.start()
+            
 
     # def upload_run_logs(self):
     #     run_log_path = os.path.join("../experiments/", self.experiment_name, "models/net_g_latest.pth")

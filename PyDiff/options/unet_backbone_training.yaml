@@ -7,7 +7,7 @@ manual_seed: 0
 # dataset and data loader settings
 datasets:
   train:
-    dataset_names: ['uieb', 'lsui']
+    dataset_names: ['lsui', 'uieb']
     use_rrdb: false
     name: train
     type: UW_Dataset_Preloaded2
@@ -26,18 +26,19 @@ datasets:
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 8
-    batch_size_per_gpu: 8
+    num_worker_per_gpu: 16
+    batch_size_per_gpu: 16
     dataset_enlarge_ratio: 1
-    prefetch_mode: ~
+    prefetch_mode: cuda
     input_mode: crop
     crop_size: 256
     should_pad: true
+    pin_memory: true
 
   val:
     # Please modify accordingly to use your own validation
     # Or comment the val block if do not need validation during training
-    dataset_names: ['uieb', 'lsui']
+    dataset_names: ['lsui', 'uieb']
     use_rrdb: false
     name: validation
     type: UW_Dataset_Preloaded2
