@@ -311,14 +311,14 @@ class ResnetBlocWithAttn(nn.Module):
         return x
     
 class ResnetBloc_eca(nn.Module):
-    def __init__(self, dim, dim_out, *, time_emb_dim=None, norm_groups=32, dropout=0, with_attn=False):
+    def __init__(self, dim, dim_out, *, time_emb_dim=None, norm_groups=32, dropout=0, with_attn=False, num_heads=2):
         super().__init__()
         self.with_attn = with_attn
         self.res_block = ResnetBlock(
             dim, dim_out, time_emb_dim, norm_groups=norm_groups, dropout=dropout)
         if with_attn:
             self.attn = nn.Sequential(*[TransformerBlock_eca(dim=int(dim), num_heads=2, ffn_expansion_factor=2.66,
-                               bias=False, LayerNorm_type='WithBias') for i in range(1)])
+                               bias=False, LayerNorm_type='WithBias') for i in range(num_heads)])
 
     def forward(self, x, time_emb):
         x = self.res_block(x, time_emb)
@@ -333,6 +333,7 @@ class Encoder(nn.Module):
             in_channel=6,
             inner_channel=32,
             norm_groups=32,
+            num_heads=2
     ):
         super().__init__()
 
@@ -351,13 +352,13 @@ class Encoder(nn.Module):
             nn.PixelUnshuffle(2))
 
         self.block1 = ResnetBloc_eca(dim=dim, dim_out=dim, time_emb_dim=time_dim, norm_groups=norm_groups,
-                                     with_attn=True)
+                                     with_attn=True, num_heads=num_heads)
         self.block2 = ResnetBloc_eca(dim=dim * 2 ** 1, dim_out=dim * 2 ** 1, time_emb_dim=time_dim,
-                                     norm_groups=norm_groups, with_attn=True)
+                                     norm_groups=norm_groups, with_attn=True, num_heads=num_heads)
         self.block3 = ResnetBloc_eca(dim=dim * 2 ** 2, dim_out=dim * 2 ** 2, time_emb_dim=time_dim,
-                                     norm_groups=norm_groups, with_attn=True)
+                                     norm_groups=norm_groups, with_attn=True, num_heads=num_heads)
         self.block4 = ResnetBloc_eca(dim=dim * 2 ** 3, dim_out=dim * 2 ** 3, time_emb_dim=time_dim,
-                                     norm_groups=norm_groups, with_attn=True)
+                                     norm_groups=norm_groups, with_attn=True, num_heads=num_heads)
 
         self.conv_up3 = nn.Sequential(
             nn.Conv2d((dim * 2 ** 3), (dim * 2 ** 3) * 2, kernel_size=3, stride=1, padding=1, bias=False),
@@ -374,11 +375,11 @@ class Encoder(nn.Module):
         self.conv_cat2 = nn.Conv2d(int(dim * 2 ** 2), int(dim * 2 ** 1), kernel_size=1, bias=False)
 
         self.decoder_block3 = ResnetBloc_eca(dim=dim * 2 ** 2, dim_out=dim * 2 ** 2, time_emb_dim=time_dim,
-                                             norm_groups=norm_groups, with_attn=True)
+                                             norm_groups=norm_groups, with_attn=True, num_heads=num_heads)
         self.decoder_block2 = ResnetBloc_eca(dim=dim * 2 ** 1, dim_out=dim * 2 ** 1, time_emb_dim=time_dim,
-                                             norm_groups=norm_groups, with_attn=True)
+                                             norm_groups=norm_groups, with_attn=True, num_heads=num_heads)
         self.decoder_block1 = ResnetBloc_eca(dim=dim * 2 ** 1, dim_out=dim * 2 ** 1, time_emb_dim=time_dim,
-                                             norm_groups=norm_groups, with_attn=True)
+                                             norm_groups=norm_groups, with_attn=True, num_heads=num_heads)
 
     def forward(self, x, t):
         x = self.conv1(x)
@@ -459,7 +460,8 @@ class TransUNet(nn.Module):
         divide=None,
         drop2d_input=False,
         drop2d_input_p=0.0,
-        channel_randperm_input=False
+        channel_randperm_input=False,
+        num_heads=2
     ):
         super().__init__()
 
@@ -477,7 +479,7 @@ class TransUNet(nn.Module):
 
         dim = inner_channel
 
-        self.encoder_water = Encoder(in_channel=in_channel, inner_channel=inner_channel, norm_groups=norm_groups).cuda()
+        self.encoder_water = Encoder(in_channel=in_channel, inner_channel=inner_channel, norm_groups=norm_groups, num_heads=num_heads).cuda()
 
         self.refine = ResnetBloc_eca(dim=dim*2**1, dim_out=dim*2**1, time_emb_dim=time_dim, norm_groups=norm_groups, with_attn=True)
         self.de_predict = nn.Sequential(nn.Conv2d(dim * 2 ** 1, out_channel, kernel_size=1, stride=1))

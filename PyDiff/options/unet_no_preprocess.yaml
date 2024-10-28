@@ -1,5 +1,5 @@
 # general settings
-name: train_transformer_backend
+name: unet_no_preprocess
 model_type: PyDiffModel
 num_gpu: 1
 manual_seed: 0
@@ -13,8 +13,8 @@ datasets:
     type: UW_Dataset_Preloaded2
     gt_root: "../../dataset/UW/gt"
     input_root: "../../dataset/UW/input"
-    concat_with_position_encoding: true
-    concat_with_hiseq: true
+    concat_with_position_encoding: false
+    concat_with_hiseq: false
     hiseq_random_cat: false
     mean: [0.23976195, 0.4732557,  0.44424778]
     std: [0.19079739, 0.20718611, 0.21206066]
@@ -43,9 +43,9 @@ datasets:
     type: UW_Dataset_Preloaded2
     gt_root: "../../dataset/UW/gt"
     input_root: "../../dataset/UW/input"
-    concat_with_hiseq: true
+    concat_with_hiseq: false
     divide: 32
-    concat_with_position_encoding: true
+    concat_with_position_encoding: false
     mean: [0.23976195, 0.4732557,  0.44424778]
     std: [0.19079739, 0.20718611, 0.21206066]
     should_normalize: true
@@ -55,12 +55,20 @@ datasets:
 
 # network structures
 network_unet:
-  type: TransUNet
-  in_channel: 13
+  type: SR3UNet
+  in_channel: 6
   out_channel: 3
   inner_channel: 64
   norm_groups: 32
+  channel_mults: [1,2,4,8,8]
+  attn_res: [16]
+  res_blocks: 2
+  dropout: 0.1
+  divide: 16
+  use_CA: true
+  attn_type: SHAV2
   use_affine_level: true
+  
 
 network_global_corrector:
   type: GlobalCorrector

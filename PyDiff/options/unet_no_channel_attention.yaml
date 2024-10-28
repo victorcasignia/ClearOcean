@@ -1,5 +1,5 @@
 # general settings
-name: train_transformer_backend
+name: unet_no_channel_attention
 model_type: PyDiffModel
 num_gpu: 1
 manual_seed: 0
@@ -55,12 +55,19 @@ datasets:
 
 # network structures
 network_unet:
-  type: TransUNet
+  type: SR3UNet
   in_channel: 13
   out_channel: 3
   inner_channel: 64
   norm_groups: 32
+  channel_mults: [1,2,4,8,8]
+  attn_res: []
+  res_blocks: 2
+  dropout: 0.1
+  divide: 16
+  use_CA: false
   use_affine_level: true
+  
 
 network_global_corrector:
   type: GlobalCorrector

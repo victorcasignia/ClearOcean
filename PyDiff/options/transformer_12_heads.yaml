@@ -1,5 +1,5 @@
 # general settings
-name: train_transformer_backend
+name: transformer_12_heads
 model_type: PyDiffModel
 num_gpu: 1
 manual_seed: 0
@@ -61,6 +61,7 @@ network_unet:
   inner_channel: 64
   norm_groups: 32
   use_affine_level: true
+  num_heads: 12  
 
 network_global_corrector:
   type: GlobalCorrector
