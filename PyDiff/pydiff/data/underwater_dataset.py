@@ -449,7 +449,6 @@ class UW_Dataset_Preloaded2_tofix(UW_Dataset):
 class Test_UW_Dataset_Preloaded(UW_Dataset):
     def __init__(self, opt):
         super(Test_UW_Dataset_Preloaded, self).__init__(opt)
-        self.prepare_dicts()
 
     def load_test_path(self, dataset_type):
         root = os.path.join('/mnt/f/dataset_test', self.opt['test_type'], dataset_type) 
