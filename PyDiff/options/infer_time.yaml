@@ -1,0 +1,182 @@
+# GENERATE TIME: Thu Nov 14 18:09:24 2024
+# CMD:
+# pydiff/train.py -opt /tmp/tmp54wdsmv8.yaml
+
+datasets:
+  train:
+    batch_size_per_gpu: 8
+    bright_aug: false
+    bright_aug_range:
+    - 0.5
+    - 1.5
+    concat_with_hiseq: false
+    concat_with_position_encoding: false
+    crop_size: 256
+    dataset_enlarge_ratio: 1
+    dataset_names:
+    - lsui
+    gt_root: ../../dataset/UW/gt
+    hiseq_random_cat: false
+    input_mode: crop
+    input_root: ../../dataset/UW/input
+    mean:
+    - 0.23976195
+    - 0.4732557
+    - 0.44424778
+    name: train
+    num_worker_per_gpu: 8
+    prefetch_mode: null
+    should_normalize: true
+    should_pad: true
+    std:
+    - 0.19079739
+    - 0.20718611
+    - 0.21206066
+    test_type: center_crop_256
+    type: Test_UW_Dataset_Preloaded
+    use_flip: true
+    use_rrdb: false
+    use_shuffle: true
+  val:
+    concat_with_hiseq: false
+    concat_with_position_encoding: false
+    crop_size: 256
+    dataset_names:
+    - lsui
+    divide: 32
+    gt_root: ../../dataset/UW/gt
+    input_mode: crop
+    input_root: ../../dataset/UW/input
+    mean:
+    - 0.23976195
+    - 0.4732557
+    - 0.44424778
+    name: validation
+    should_normalize: true
+    should_pad: true
+    std:
+    - 0.19079739
+    - 0.20718611
+    - 0.21206066
+    test_type: center_crop_256
+    type: Test_UW_Dataset_Preloaded
+    use_rrdb: false
+ddpm_schedule:
+  linear_end: 0.01
+  linear_start: 1.0e-06
+  n_timestep: 2000
+  schedule: linear
+dist_params:
+  backend: nccl
+  port: 29500
+find_unused_parameters: true
+logger:
+  print_freq: 100
+  save_checkpoint_freq: 5000.0
+  use_tb_logger: true
+  wandb:
+    project: null
+    resume_id: null
+manual_seed: 0
+model_type: PyDiffModel
+name: inference_test_unet_no_preprocess_lsui_center_crop_256
+network_ddpm:
+  channels: 3
+  color_limit: -1
+  conditional: true
+  image_size: 256
+  pyramid_list:
+  - 1
+  - 1
+  - 2
+  - 4
+  type: GaussianDiffusion
+network_global_corrector:
+  normal01: true
+  type: GlobalCorrector
+network_unet:
+  attn_res:
+  - 16
+  attn_type: SHAV2
+  channel_mults:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 8
+  divide: 16
+  dropout: 0.1
+  in_channel: 6
+  inner_channel: 64
+  norm_groups: 32
+  out_channel: 3
+  res_blocks: 2
+  type: SR3UNet
+  use_CA: true
+  use_affine_level: true
+num_gpu: 1
+path:
+  ignore_resume_networks:
+  - network_identity
+  param_key_g: params
+  pretrain_network_d: null
+  pretrain_network_g: /mnt/f/ClearOcean_experiments_20241104/unet_no_preprocess/models/net_g_latest.pth
+  resume_state: null
+  strict_load_g: false
+train:
+  crop_size:
+  - 256
+  - 256
+  cs_on_shift: true
+  input_mode: crop
+  optim_component:
+    lr: 0.002
+    type: Adam
+  optim_d:
+    lr: 0.002
+    type: Adam
+  optim_g:
+    lr: 0.0001
+    type: Adam
+  scheduler:
+    gamma: 0.5
+    milestones:
+    - 100000
+    - 125000
+    - 150000
+    - 200000
+    - 250000
+    type: MultiStepLR
+  t_border: 1000
+  total_iter: 0
+  train_type: ddpm_cs_pyramid
+  vis_num: 150
+  vis_train: true
+  warmup_iter: -1
+val:
+  cal_all: true
+  color_gamma: 1.0
+  ddim_eta: 1.0
+  ddim_timesteps: 4
+  fix_seed: true
+  metrics:
+    lpips:
+      type: calculate_lpips_lol
+    psnr:
+      crop_border: 0
+      test_y_channel: false
+      type: calculate_psnr
+    ssim:
+      type: calculate_ssim_lol
+  only_save_sr: true
+  pyramid_list:
+  - 1
+  - 1
+  - 2
+  - 4
+  save_img: true
+  show_all: true
+  split_log: true
+  use_kind_align: false
+  use_up_v2: true
+  val_freq: 5000.0

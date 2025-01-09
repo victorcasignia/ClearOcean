@@ -84,7 +84,7 @@ class SHALayer(nn.Module):
 
         attn_mask = H * V
         attn_mask = self.sigmoid(attn_mask)
-        return attn_mask * fea
+        return attn_mask * fea + fea
 
 
 class SHALayerV2(nn.Module):

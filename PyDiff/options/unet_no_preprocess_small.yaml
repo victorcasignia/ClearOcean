@@ -1,5 +1,5 @@
 # general settings
-name: unet_no_preprocess
+name: unet_no_preprocess_small
 model_type: PyDiffModel
 num_gpu: 1
 manual_seed: 0
@@ -27,7 +27,7 @@ datasets:
     # data loader
     use_shuffle: true
     num_worker_per_gpu: 8
-    batch_size_per_gpu: 8
+    batch_size_per_gpu: 16
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
     input_mode: crop
@@ -60,9 +60,9 @@ network_unet:
   out_channel: 3
   inner_channel: 64
   norm_groups: 32
-  channel_mults: [1,2,4,8,8]
+  channel_mults: [1,1,2,4]
   attn_res: [16]
-  res_blocks: 2
+  res_blocks: 1
   dropout: 0.1
   divide: 16
   use_CA: true

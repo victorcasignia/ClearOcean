@@ -9,7 +9,10 @@ from tqdm import tqdm
 import random
 from basicsr.utils.registry import ARCH_REGISTRY
 from scripts.utils import pad_tensor, pad_tensor_back
-
+from basicsr.utils import imwrite, tensor2img
+import uuid
+import os.path as osp
+from torch.profiler import profile, record_function, ProfilerActivity
 
 def _warmup_beta(linear_start, linear_end, n_timestep, warmup_frac):
     betas = linear_end * np.ones(n_timestep, dtype=np.float64)
@@ -231,6 +234,21 @@ class GaussianDiffusion(nn.Module):
         sample_img = torch.randn((b, c, init_h, init_w), device=device)
         sample_inter = (1 | (ddim_timesteps//10))
         ret_img = x_in[:, :3, :, :]
+
+        random_string = "sampling"
+    
+        ret_img_to_print = tensor2img(sample_img, min_max=(-1, 1))
+        
+        save_img_path = osp.join("/mnt/f/samples", random_string, f'{random_string}_4.png')
+        imwrite(ret_img_to_print, save_img_path)
+
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+
+        
+        start.record()
+
+        # with torch.autograd.profiler.profile(use_cuda=True) as prof:
         for i in tqdm(reversed(range(0, ddim_timesteps)), desc='sampling loop time step', total=ddim_timesteps):
             if return_all and i % sample_inter == 0:
                 all_process = [F.interpolate(sample_img, (h, w))]
@@ -319,9 +337,25 @@ class GaussianDiffusion(nn.Module):
                     ret_img = torch.cat([ret_img, torch.cat(all_process, dim=0)], dim=0)
                 else:
                     ret_img = torch.cat([ret_img, F.interpolate(sample_img, (h, w))], dim=0)
+
+            
+            ret_img_to_print = tensor2img(sample_img, min_max=(-1, 1))
+            
+            save_img_path = osp.join("/mnt/f/samples", random_string, f'{random_string}_{i}.png')
+            imwrite(ret_img_to_print, save_img_path)
+        
+        end.record()
+        # print(prof) 
+        torch.cuda.synchronize()
+
+        # Waits for everything to finish running
+
+        print(start.elapsed_time(end))
+        
         if continous:
             return ret_img
         else:
+            
             return sample_img
 
 

@@ -6,6 +6,9 @@ from inspect import isfunction
 from basicsr.utils.registry import ARCH_REGISTRY
 from basicsr.archs.layers import CALayer, SHALayer, SHALayerV2, CALayerV2
 from scripts.utils import pad_tensor, pad_tensor_back
+import os
+import cv2
+import numpy as np
 
 def exists(x):
     return x is not None
@@ -296,8 +299,20 @@ class SR3UNet(nn.Module):
                 now_res = now_res*2
 
         self.ups = nn.ModuleList(ups)
+        self.save_dir = '/mnt/f/samples/feature_maps'
 
         self.final_conv = Block(pre_channel, default(out_channel, in_channel), groups=norm_groups)
+
+    def save_feature_maps(self, feature_maps, layer_name):
+        return
+        os.makedirs(self.save_dir, exist_ok=True)
+        feature_maps = feature_maps.cpu().detach().numpy()
+        for i in range(feature_maps.shape[1]):  # Iterate over channels
+            feature_map = feature_maps[0, i, :, :]  # Get the i-th channel
+            feature_map = (feature_map - feature_map.min()) / (feature_map.max() - feature_map.min())  # Normalize to [0, 1]
+            feature_map = (feature_map * 255).astype(np.uint8)  # Scale to [0, 255]
+            save_path = os.path.join(self.save_dir, f"{layer_name}_feature_map_{i}.png")
+            cv2.imwrite(save_path, feature_map)
 
     def forward(self, x, time=None):
         if self.channel_randperm_input:
@@ -309,36 +324,55 @@ class SR3UNet(nn.Module):
             x, pad_left, pad_right, pad_top, pad_bottom = pad_tensor(x, self.divide)
         t = self.noise_level_mlp(time) if exists(
             self.noise_level_mlp) else None
+    
 
         feats = []
-        for layer in self.downs:
+        for ind, layer in enumerate(self.downs):
             if isinstance(layer, ResnetBlocWithAttn):
                 x = layer(x, t)
             else:
                 x = layer(x)
+
+            self.save_feature_maps(x, "a_downs_" + str(ind))
             feats.append(x)
 
-        for layer in self.mid:
+        for ind, layer in enumerate(self.mid):
             if isinstance(layer, ResnetBlocWithAttn):
                 x = layer(x, t)
             else:
                 x = layer(x)
 
-        for layer in self.ups:
+            self.save_feature_maps(x, "b_mids_" + str(ind))
+
+        for ind, layer in enumerate(self.ups):
             if isinstance(layer, ResnetBlocWithAttn):
                 x = layer(torch.cat((x, feats.pop()), dim=1), t)
             else:
                 x = layer(x)
+
+            self.save_feature_maps(x, "c_ups_" + str(ind))
         if self.divide:
             out = self.final_conv(x)
+
             out = pad_tensor_back(out, pad_left, pad_right, pad_top, pad_bottom)
-            return out
+            x = out
         else:
-            return self.final_conv(x)
+            x = self.final_conv(x)
+
+            
+        # copy = x.cpu().detach().numpy()
+        # copy = np.transpose(copy, (0, 2, 3, 1))  # Change shape to (batch_size, height, width, channels)
+        # copy = (copy * 255).astype(np.uint8)  # Scale to [0, 255]
+        
+        # # Save each image in the batch
+        # for i in range(copy.shape[0]):
+        #     save_path = os.path.join(self.save_dir, f"final_layer_feature_map_{i}.png")
+        #     cv2.imwrite(save_path, copy[i])
+
+        return x
 
 if __name__ == '__main__':
-    model = SR3UNet()
-    x = torch.randn(8, 13, 256, 256)
-    time = torch.randn(8, 1)
+    model = SR3UNet(in_channel=13)
+    x = torch.randn(1, 13, 256, 256)
+    time = torch.randn(1, 1)
     y = model(x, time)
-    print(y.shape)

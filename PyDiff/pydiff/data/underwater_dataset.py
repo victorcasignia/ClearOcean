@@ -20,6 +20,9 @@ from torchvision.io import read_image
 from torchvision.transforms.functional import equalize, hflip, crop
 from tqdm import tqdm
 from multiprocessing import Pool
+from basicsr.utils import imwrite, tensor2img
+import uuid
+import os.path as osp
 
 @DATASET_REGISTRY.register()
 class UW_Dataset(data.Dataset):
@@ -173,6 +176,14 @@ class UW_Dataset(data.Dataset):
     
     def concat_with_hiseq(self, input_img, orig_img):
         hiseql = cv2.cvtColor(hiseq_color_cv2_img(orig_img), cv2.COLOR_BGR2RGB) / 255.
+
+        random_string = "preprocessing"
+        ret_img_to_print = hiseql
+        ret_img_to_print = (ret_img_to_print * 255).clip(0, 255).astype(np.uint8)
+        ret_img_to_print = cv2.cvtColor(ret_img_to_print, cv2.COLOR_RGB2BGR)
+        save_img_path = osp.join("/mnt/f/samples", random_string, f'{random_string}_4.png')
+        imwrite(ret_img_to_print, save_img_path)
+
         if self.opt.get('hiseq_random_cat', False) and np.random.uniform(0, 1) < self.opt.get('hiseq_random_cat_p', 0.5):
             input_img = np.concatenate([hiseql, input_img], axis=2)
         else:
@@ -203,6 +214,29 @@ class UW_Dataset(data.Dataset):
         H, W, _ = input_img.shape
         L = self.opt.get('position_encoding_L', 1)
         position_encoding = generate_position_encoding(H, W, L).numpy()
+
+
+        image_x = position_encoding[:, :, :2]
+        random_string = "preprocessing"
+        ret_img_to_print = np.dstack((image_x, np.ones_like(image_x[:, :, 0]) * 255))
+        ret_img_to_print = (ret_img_to_print * 255).clip(0, 255).astype(np.uint8)
+        # ret_img_to_print = cv2.cvtColor(ret_img_to_print, cv2.COLOR_RGB2BGR)
+        # ret_img_to_print = cv2.applyColorMap(ret_img_to_print, cv2.COLORMAP_HOT)
+        save_img_path = osp.join("/mnt/f/samples", random_string, f'{random_string}_3_x.png')
+        imwrite(ret_img_to_print, save_img_path)
+
+        
+        image_y = position_encoding[:, :, 2:]
+        random_string = "preprocessing"
+        ret_img_to_print = np.dstack((image_y, np.ones_like(image_x[:, :, 0]) * 255))
+        ret_img_to_print = (ret_img_to_print * 255).clip(0, 255).astype(np.uint8)
+        # ret_img_to_print = cv2.cvtColor(ret_img_to_print, cv2.COLOR_RGB2BGR)
+        # ret_img_to_print = cv2.applyColorMap(ret_img_to_print, cv2.COLORMAP_HOT)
+        save_img_path = osp.join("/mnt/f/samples", random_string, f'{random_string}_3_y.png')
+        imwrite(ret_img_to_print, save_img_path)
+
+
+
         return np.concatenate([input_img, position_encoding], axis=2)
     
 
@@ -273,6 +307,13 @@ class UW_Dataset(data.Dataset):
         gt_img = self.pad_image(self.get_image(gt_path), self.opt.get('crop_size', None), self.opt.get('crop_size', None))
         input_img = self.pad_image(self.get_image(input_path), self.opt.get('crop_size', None), self.opt.get('crop_size', None))
         
+        random_string = "preprocessing"
+        ret_img_to_print = input_img
+        ret_img_to_print = (ret_img_to_print * 255).clip(0, 255).astype(np.uint8)
+        ret_img_to_print = cv2.cvtColor(ret_img_to_print, cv2.COLOR_RGB2BGR)
+        save_img_path = osp.join("/mnt/f/samples", random_string, f'{random_string}_5.png')
+        imwrite(ret_img_to_print, save_img_path)
+
         if self.opt.get('bright_aug', False):
             input_img = self.color_aug(input_img)
 
@@ -492,8 +533,8 @@ class CVMIGDataset(UW_Dataset):
         self.input_paths, self.gt_paths = self.load_paths()
 
     def load_paths(self):
-        x_path = '/app/dataset/CVMIG'
-        y_path = '/app/dataset/CVMIG'
+        x_path = '/mnt/f/CS298/PyDIff/dataset/CVMIG'
+        y_path = '/mnt/f/CS298/PyDIff/dataset/CVMIG'
 
         x_paths = glob.glob(os.path.join(x_path, '*.png')) + glob.glob(os.path.join(x_path, '*.jpg')) + glob.glob(os.path.join(x_path, '*.jpeg'))
         y_paths = glob.glob(os.path.join(y_path, '*.png')) + glob.glob(os.path.join(y_path, '*.jpg')) + glob.glob(os.path.join(y_path, '*.jpeg'))

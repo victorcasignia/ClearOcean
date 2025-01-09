@@ -1,0 +1,89 @@
+# general settings
+name: infer_pros
+model_type: PyDiffModel
+num_gpu: 1
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    dataset_names: ['cvmig']
+    use_rrdb: false
+    name: train
+    type: CVMIGDataset
+    input_mode: ~
+    concat_with_position_encoding: true
+    concat_with_hiseq: true
+    hiseq_random_cat: true
+    mean: [0.5, 0.5, 0.5]
+    std: [0.5, 0.5, 0.5]
+    use_flip: true
+
+    bright_aug: true
+    bright_aug_range: [0.5, 1.5]
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 1
+    batch_size_per_gpu: 1
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+  val:
+    # Please modify accordingly to use your own validation
+    # Or comment the val block if do not need validation during training
+    dataset_names: ['cvmig']
+    use_rrdb: false
+    name: validation
+    type: CVMIGDataset
+    concat_with_hiseq: true
+    divide: 32
+    concat_with_position_encoding: true
+    mean: [0.23976195, 0.4732557,  0.44424778]
+    std: [0.19079739, 0.20718611, 0.21206066]
+    should_normalize: true
+    input_mode: crop
+    test_type: random_crop_256
+
+# network structures
+network_unet:
+  type: SR3UNet
+  in_channel: 13
+  out_channel: 3
+  inner_channel: 64
+  norm_groups: 32
+  channel_mults: [1,2,4,8,8]
+  attn_res: [16]
+  res_blocks: 2
+  dropout: 0.1
+  divide: 16
+  use_CA: true
+  attn_type: SHAV2
+  use_affine_level: true
+  
+
+network_global_corrector:
+  type: GlobalCorrector
+  normal01: true
+
+network_ddpm:
+  type: GaussianDiffusion
+  image_size: 256
+  channels: 3
+  conditional: true
+  color_limit: -1
+  pyramid_list: [1, 1, 2, 4]
+
+ddpm_schedule:
+  schedule: "linear"
+  n_timestep: 2000
+  linear_start: !!float 1e-6
+  linear_end: !!float 1e-2
+
+# path
+path:
+  pretrain_network_g: "../checkpoints/net_g_latest.pth"
+  param_key_g: params
+  strict_load_g: False
+  pretrain_network_d: ~
+  resume_state: ~
+  ignore_resume_networks: ['network_identity']
