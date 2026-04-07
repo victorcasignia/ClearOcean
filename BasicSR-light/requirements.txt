@@ -14,3 +14,4 @@ torchvision
 tqdm
 yapf
 torchmetrics==0.10.2
+lpips==0.1.4

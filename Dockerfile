@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04
+FROM vastai/pytorch:latest
 
 WORKDIR /app
 
@@ -28,6 +28,8 @@ RUN pip install -r /app/BasicSR-light/requirements.txt
 ENV BASICSR_EXT=True 
 RUN python3 setup.py develop
 WORKDIR /app/PyDiff
+# PyDiff pins numpy<1.21, but Python 3.10 in the base image has no wheel for that range.
+RUN sed -i 's/^numpy<1\.21.*/numpy==1.23.5/' /app/PyDiff/requirements.txt
 RUN pip install -r /app/PyDiff/requirements.txt
 ENV BASICSR_EXT=True 
 RUN python3 setup.py develop

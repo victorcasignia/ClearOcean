@@ -3,13 +3,17 @@ from copy import deepcopy
 from basicsr.utils.registry import METRIC_REGISTRY
 from .niqe import calculate_niqe
 from .psnr_ssim import calculate_psnr, calculate_ssim
+from .psnr_default import calculate_psnr_default
+from .ssim_default import calculate_ssim_default
 from .psnr_pytorch import calculate_psnr_pytorch
 from .ssim_pytorch import calculate_ssim_pytorch
 from .ssim_lol import calculate_ssim_lol
 from .lpips_lol import calculate_lpips_lol
+from .lpips_default import calculate_lpips_default
 
 __all__ = ['calculate_psnr', 'calculate_ssim', 'calculate_niqe', 'calculate_psnr_pytorch', \
-           'calculate_ssim_pytorch', 'calculate_ssim_lol', 'calculate_lpips_lol']
+           'calculate_psnr_default', 'calculate_ssim_default', 'calculate_ssim_pytorch', 'calculate_ssim_lol', \
+           'calculate_lpips_lol', 'calculate_lpips_default']
 
 
 def calculate_metric(data, opt):

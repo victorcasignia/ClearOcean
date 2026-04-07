@@ -1,0 +1,1 @@
+cd /app/ && pip install gdown && apt install unzip zip nano && gdown --fuzzy https://drive.google.com/file/d/1U6N83-FWkGJlI9T9n5vV4nt0MW296nSf/view?pli=1 && gdown --fuzzy https://drive.google.com/file/d/1Put9ei2VC47knN0oCPuOdB8zk85qpRWw/view?usp=drive_link &&unzip -o ClearOcean.zip && unzip -o experiment.zip && cd PyDiff
