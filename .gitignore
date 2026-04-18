@@ -113,6 +113,11 @@ arcface/*
 arcface/
 version.py
 
+# ClearOcean subtree runtime artifacts
+ClearOcean/experiments/*
+ClearOcean/results/*
+ClearOcean/tb_logger/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,7 +1,15 @@
-python3 pydiff/train.py -opt options/unet_no_preprocess.yaml
-python3 pydiff/train.py -opt options/unet_histogram_equalization.yaml
-python3 pydiff/train.py -opt options/unet_positional_encoding.yaml
-python3 pydiff/train.py -opt options/unet_no_channel_attention.yaml
-python3 pydiff/train.py -opt options/unet_no_spatial_attention.yaml
-python3 pydiff/train.py -opt options/transformer_8_heads.yaml
-python3 pydiff/train.py -opt options/transformer_12_heads.yaml
+#!/usr/bin/env bash
+set -euo pipefail
+
+MODE="${1:-train}"
+CONFIG="${2:-ClearOcean/options/clearocean.yaml}"
+
+if [[ "${MODE}" == "train" ]]; then
+  python ClearOcean/clearocean/train.py -opt "${CONFIG}"
+elif [[ "${MODE}" == "infer" ]]; then
+  python ClearOcean/clearocean/infer.py -opt "${CONFIG}"
+else
+  echo "Unknown mode: ${MODE}"
+  echo "Usage: ./run.sh [train|infer] [path/to/config.yaml]"
+  exit 1
+fi

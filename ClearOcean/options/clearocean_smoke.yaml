@@ -1,0 +1,150 @@
+# lightweight smoke-test config (low VRAM)
+name: clearocean_smoke
+model_type: ClearOceanModel
+num_gpu: 1
+manual_seed: 0
+
+datasets:
+  train:
+    dataset_names: ['uieb', 'lsui']
+    use_rrdb: false
+    name: train
+    type: UW_Dataset_Preloaded2
+    gt_root: "../../dataset/UW/gt"
+    input_root: "../../dataset/UW/input"
+    concat_with_position_encoding: false
+    concat_with_hiseq: false
+    hiseq_random_cat: false
+    mean: [0.23976195, 0.4732557, 0.44424778]
+    std: [0.19079739, 0.20718611, 0.21206066]
+    should_normalize: true
+    use_flip: false
+    bright_aug: false
+    bright_aug_range: [0.5, 1.5]
+
+    use_shuffle: true
+    num_worker_per_gpu: 0
+    batch_size_per_gpu: 1
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+    input_mode: crop
+    crop_size: 64
+    should_pad: true
+
+  val:
+    dataset_names: ['uieb', 'lsui']
+    use_rrdb: false
+    name: validation
+    type: UW_Dataset_Preloaded2
+    gt_root: "../../dataset/UW/gt"
+    input_root: "../../dataset/UW/input"
+    concat_with_hiseq: false
+    divide: 8
+    concat_with_position_encoding: false
+    mean: [0.23976195, 0.4732557, 0.44424778]
+    std: [0.19079739, 0.20718611, 0.21206066]
+    should_normalize: true
+    input_mode: crop
+    crop_size: 64
+    should_pad: true
+    num_worker_per_gpu: 0
+    batch_size_per_gpu: 1
+
+network_unet:
+  type: SR3UNet
+  in_channel: 6
+  out_channel: 3
+  inner_channel: 16
+  norm_groups: 8
+  channel_mults: [1, 2, 2]
+  attn_res: [8]
+  res_blocks: 1
+  dropout: 0.0
+  divide: 8
+  use_CA: true
+  attn_type: SHAV2
+  use_affine_level: true
+
+network_global_corrector:
+  type: GlobalCorrector
+  normal01: true
+
+network_ddpm:
+  type: GaussianDiffusion
+  image_size: 64
+  channels: 3
+  conditional: true
+  color_limit: -1
+  pyramid_list: [1, 1]
+
+ddpm_schedule:
+  schedule: "linear"
+  n_timestep: 8
+  linear_start: !!float 1e-6
+  linear_end: !!float 1e-2
+
+path:
+  pretrain_network_g: ~
+  param_key_g: params
+  strict_load_g: False
+  pretrain_network_d: ~
+  resume_state: ~
+  ignore_resume_networks: ['network_identity']
+
+train:
+  cs_on_shift: true
+  vis_train: false
+  vis_num: 0
+  train_type: ddpm_cs_pyramid
+  t_border: 4
+  input_mode: crop
+  crop_size: [64, 64]
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [1]
+    gamma: 0.5
+
+  total_iter: 1
+  warmup_iter: -1
+
+val:
+  split_log: false
+  fix_seed: true
+  color_gamma: 1.0
+  use_up_v2: true
+  pyramid_list: [1, 1]
+  ddim_eta: !!float 1.0
+  ddim_timesteps: 2
+  use_kind_align: false
+  cal_all: false
+  show_all: false
+  val_freq: !!float 1
+  save_img: false
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim_lol
+    lpips:
+      type: calculate_lpips_lol
+
+logger:
+  print_freq: 1
+  save_checkpoint_freq: !!float 1000000
+  use_tb_logger: false
+  wandb:
+    project: ~
+    resume_id: ~
+
+dist_params:
+  backend: nccl
+  port: 29500
+
+find_unused_parameters: true

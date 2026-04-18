@@ -6,14 +6,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./PyDiff/requirements.txt .
+COPY ./ClearOcean/requirements.txt .
 
 # RUN pip install --no-cache-dir -r requirements.txt
 # RUN pip install -U numpy
 
 COPY . .
 
-WORKDIR /app/PyDiff
+WORKDIR /app/ClearOcean
 
 RUN apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0
 
@@ -27,10 +27,10 @@ WORKDIR /app/BasicSR-light
 RUN pip install -r /app/BasicSR-light/requirements.txt
 ENV BASICSR_EXT=True 
 RUN python3 setup.py develop
-WORKDIR /app/PyDiff
-# PyDiff pins numpy<1.21, but Python 3.10 in the base image has no wheel for that range.
-RUN sed -i 's/^numpy<1\.21.*/numpy==1.23.5/' /app/PyDiff/requirements.txt
-RUN pip install -r /app/PyDiff/requirements.txt
+WORKDIR /app/ClearOcean
+# ClearOcean previously pinned numpy<1.21, but Python 3.10 in the base image has no wheel for that range.
+RUN sed -i 's/^numpy<1\.21.*/numpy==1.23.5/' /app/ClearOcean/requirements.txt
+RUN pip install -r /app/ClearOcean/requirements.txt
 ENV BASICSR_EXT=True 
 RUN python3 setup.py develop
 RUN pip install -U numpy
@@ -46,16 +46,16 @@ RUN pip install -U numpy
 
 # RUN ls
 # # create conda environment
-# RUN conda init bash && . ~/.bashrc && conda create -n PyDiff python=3.7 && conda activate PyDiff && conda install -y pytorch==1.13.1 torchvision torchaudio cudatoolkit=11.0 -c pytorch
+# RUN conda init bash && . ~/.bashrc && conda create -n ClearOcean python=3.7 && conda activate ClearOcean && conda install -y pytorch==1.13.1 torchvision torchaudio cudatoolkit=11.0 -c pytorch
 
     
 # WORKDIR /app/BasicSR-light
-# RUN conda init bash && . ~/.bashrc && conda activate PyDiff && pip install -r /app/BasicSR-light/requirements.txt
+# RUN conda init bash && . ~/.bashrc && conda activate ClearOcean && pip install -r /app/BasicSR-light/requirements.txt
 # ENV BASICSR_EXT=True 
-# RUN conda init bash && . ~/.bashrc && conda activate PyDiff && python setup.py develop
-# WORKDIR /app/PyDiff
-# RUN conda init bash && . ~/.bashrc && conda activate PyDiff && pip install -r /app/PyDiff/requirements.txt
+# RUN conda init bash && . ~/.bashrc && conda activate ClearOcean && python setup.py develop
+# WORKDIR /app/ClearOcean
+# RUN conda init bash && . ~/.bashrc && conda activate ClearOcean && pip install -r /app/ClearOcean/requirements.txt
 # ENV BASICSR_EXT=True 
-# RUN conda init bash && . ~/.bashrc && conda activate PyDiff && python setup.py develop
+# RUN conda init bash && . ~/.bashrc && conda activate ClearOcean && python setup.py develop
 
-# WORKDIR /app/PyDiff
+# WORKDIR /app/ClearOcean
